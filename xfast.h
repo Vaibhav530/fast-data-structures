@@ -175,8 +175,8 @@ void xinsert(struct nlf *rt,int x){
     }
     //while(t!=NULL&&((t->tl+t->tr)!=2))t=t->p;if(ls==NULL)ls=t;else lp=t;
     t=t->p;i++;
-    if(ls==NULL){while(t!=NULL){if(((x&(1<<(i-1)))==0)&&t->tl&&t->tr)break;t=t->p;i++;}ls=t;}
-    else{while(t!=NULL){if(((x&(1<<(i-1))))&&t->tl&&t->tr)break;t=t->p;i++;}lp=t;}
+    if(ls==NULL){while(t!=NULL){if(((x&(1<<(i-1)))==0)&&t->tl&&t->tr)break;t=t->p;i++;}ls=t;printf("ls:%d\n",i);}
+    else{while(t!=NULL){if(((x&(1<<(i-1))))&&t->tl&&t->tr)break;t=t->p;i++;}lp=t;printf("lp:%d\n",i);}
     if(pr!=NULL){pr->r=y;t=pr->p;while(t!=lp&&t!=NULL){if(t->tr==0)t->r.l=y;t=t->p;}}
     if(sc!=NULL){sc->l=y;t=sc->p;while(t!=ls&&t!=NULL){if(t->tl==0)t->l.l=y;t=t->p;}}
 }
@@ -201,15 +201,20 @@ void xdel(struct nlf *rt,int x){
     if(a==NULL)return;printf("found\n");
     pr=a->l;sc=a->r;printf("sc:%p pr:%p\n",sc,pr);
     t=a->p;
-    if(x&1){t->tr=0;t->r.l=sc;}else{t->tl=0;t->l.l=pr;}b=t->p;
-    if((t->tr+t->tl)==0){free((void*)t);printf("l:%d\n",i);
-    while(t!=NULL&&i<xheight){i++;t=b;b=b->p;
+    if(x&1){t->tr=0;t->r.l=sc;}else{t->tl=0;t->l.l=pr;}
+    while((t->tr+t->tl)==0&&t->p!=NULL){
+        i++;b=t->p;free((void*)t);t=b;
         if(x&(1<<i)){t->tr=0;t->r.l=sc;}
-        else{t->tl=0;printf("el:%d\n",t->tr);t->l.l=pr;}
-        printf("l:%d\n",i);
+        else{t->tl=0;t->l.l=pr;}
+    }
+    /*if(x&1){t->tr=0;t->r.l=sc;}else{t->tl=0;t->l.l=pr;}b=t->p;
+    if((t->tr+t->tl)==0){free((void*)t);printf("l:%d\n",i);
+    while(t->p!=NULL&&i<xheight){i++;t=b;b=b->p;
+        if(x&(1<<i)){t->tr=0;t->r.l=sc;}
+        else{t->tl=0;t->l.l=pr;}
         if((t->tr+t->tl)==0)free((void*)t);
         else break;
-    }}
+    }}*/
     //if(pr!=NULL){pr->r=sc;t=pr->p;while(t!=NULL){if((t->tr==0)&&(t->r.l==a))t->r.l=sc;t=t->p;}}
     //if(sc!=NULL){sc->l=pr;t=sc->p;while(t!=NULL){if((t->tl==0)&&(t->l.l==a))t->l.l=pr;t=t->p;}}
     if(pr!=NULL){pr->r=sc;t=pr->p;while(t!=NULL){if(t->tr==0&&t->r.l==a)t->r.l=sc;t=t->p;}}
