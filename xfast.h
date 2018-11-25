@@ -116,12 +116,42 @@ struct nlf *xbuild(int x,struct lf *pr,struct lf *sc,struct nlf *p,struct lf **y
     return o;
 }
 
+void xinsert2(struct nlf *rt,int x){
+    int i,j,k,n;struct nlf *t,*lp,*ls,*p;struct lf *pr,*sc,*y;
+    n=rt->lv;t=rt;pr=xpred(rt,x);sc=xsucc(rt,x);lp=ls=p=NULL;
+    printf("inserting:%d pr:%d sc:%d\n",x,pr==NULL?-1:pr->x,sc==NULL?-1:sc->x);
+
+    for(i=n;i>1;i--){
+        if(x&(1<<(i-1))){
+            if(t->tr){t=t->r.nl;if(t->tl)p=t;}
+            else{t->tr=1;t->r.nl=xbuild(x,pr,sc,t,&y,i-1);lp=t;break;}
+        }
+        else{
+            if(t->tl){t=t->l.nl;if(t->tr)p=t;}
+            else{t->tl=1;t->l.nl=xbuild(x,pr,sc,t,&y,i-1);ls=t;break;}
+        }
+    }
+    if(i==1){
+        if(x&1){
+            if(t->tr){return;}
+            else {t->tr=1;y=t->r.l=xgetlf(pr,sc,t,x);lp=t;}
+        }
+        else{
+            if(t->tl){return;}
+            else {t->tl=1;y=t->l.l=xgetlf(pr,sc,t,x);ls=t;}
+        }
+    }printf("build done\n");
+    if(lp==NULL){printf("pred limit\n");lp=p;}else {printf("succ lim\n");ls=p;}printf("p:%p\n",p);
+    if(pr!=NULL){pr->r=y;t=pr->p;while(t!=lp){if(t->tr==0)t->r.l=y;t=t->p;}}printf("pred done\n");
+    if(sc!=NULL){sc->l=y;t=sc->p;while(t!=ls){if(t->tl==0)t->l.l=y;t=t->p;}}
+}
+
 void xinsert(struct nlf *rt,int x){
     int i,j,k,n;struct nlf *t,*lp,*ls;struct lf *pr,*sc,*y;
     n=rt->lv;t=rt;pr=xpred(rt,x);sc=xsucc(rt,x);lp=ls=NULL;
 
     //switch(x){case 13:case 23:case 10:case 124:default://succ2(rt,x);
-    //printf("inserting:%d pr:%d sc:%d",x,pr==NULL?-1:pr->x,sc==NULL?-1:sc->x);getchar();}
+    printf("inserting:%d pr:%d sc:%d\n",x,pr==NULL?-1:pr->x,sc==NULL?-1:sc->x);
 
     for(i=n;i>1;i--){
         if(x&(1<<(i-1))){
@@ -144,11 +174,11 @@ void xinsert(struct nlf *rt,int x){
         }
     }
     //while(t!=NULL&&((t->tl+t->tr)!=2))t=t->p;if(ls==NULL)ls=t;else lp=t;
-    t=t->p;i--;
-    if(ls==NULL){while(t!=NULL){if(x&(1<<(i-1))&&((t->tl+t->tr)==2))break;t=t->p;i--;}ls=t;}
-    else{while(t!=NULL){if((x&(1<<(i-1)))==0&&((t->tl+t->tr)==2))break;t=t->p;i--;}lp=t;}
-    if(pr!=NULL){pr->r=y;t=pr->p;while(t!=lp){if(t->tr==0)t->r.l=y;t=t->p;}}
-    if(sc!=NULL){sc->l=y;t=sc->p;while(t!=ls){if(t->tl==0)t->l.l=y;t=t->p;}}
+    t=t->p;i++;
+    if(ls==NULL){while(t!=NULL){if(((x&(1<<(i-1)))==0)&&t->tl&&t->tr)break;t=t->p;i++;}ls=t;}
+    else{while(t!=NULL){if(((x&(1<<(i-1))))&&t->tl&&t->tr)break;t=t->p;i++;}lp=t;}
+    if(pr!=NULL){pr->r=y;t=pr->p;while(t!=lp&&t!=NULL){if(t->tr==0)t->r.l=y;t=t->p;}}
+    if(sc!=NULL){sc->l=y;t=sc->p;while(t!=ls&&t!=NULL){if(t->tl==0)t->l.l=y;t=t->p;}}
 }
 
 struct lf *xfind(struct nlf *rt,int x){
